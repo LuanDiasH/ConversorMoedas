@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor de Moedas</title>
+    <!-- Link do Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5 text-center">Conversor de Moedas</h1>
+        <div class="row justify-content-center mt-5">
+            <div class="col-md-6">
+                <form id="converterForm">
+                    <div class="form-group">
+                        <label for="valor">Valor:</label>
+                        <input type="number" class="form-control form-control-md rounded-pill" id="valor" placeholder="Digite o valor" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="deMoeda">De:</label>
+                        <select class="form-control form-control-md rounded-pill" id="deMoeda" required>
+                            <option value="BRL">BRL - Real Brasileiro</option>
+                            <!-- Adicione mais opções conforme necessário -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="paraMoeda">Para:</label>
+                        <select class="form-control form-control-md rounded-pill" id="paraMoeda" required>
+                            <option value="USD">USD - Dólar Americano</option>
+                            <option value="EUR">EUR - Euro</option>
+                            <option value="BRL">BRL - Real Brasileiro</option>
+                            <!-- Adicione mais opções conforme necessário -->
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block rounded-pill">Converter</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="row justify-content-center mt-5">
+            <div class="col-md-6">
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <label for="result">Conversão:</label>
+                        <input type="text" class="form-control form-control-md rounded-pill" id="result" readonly>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script do jQuery e Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- Script para conversão de moeda -->
+    <script>
+        function limpaCampos() {
+            document.getElementById('valor').value = '';
+            document.getElementById('result').value = '';
+        }
+
+        function pesquisarCotacao() {
+            var valorInserido = document.getElementById('valor').value;
+            var deMoeda = document.getElementById('deMoeda').value;
+            var paraMoeda = document.getElementById('paraMoeda').value;
+
+            if (valorInserido != '' && valorInserido != 0) {
+                var url = 'https://economia.awesomeapi.com.br/last/USD-BRL,EUR-BRL,BRL-USD';
+                $.getJSON(url, function(data) {
+                    var resultado = 0;
+                    if (deMoeda === 'BRL' && paraMoeda === 'USD') {
+                        resultado = valorInserido / parseFloat(data.USDBRL.high);
+                    } else if (deMoeda === 'BRL' && paraMoeda === 'EUR') {
+                        resultado = valorInserido / parseFloat(data.EURBRL.high);
+                    } else if (deMoeda === 'USD' && paraMoeda === 'BRL') {
+                        resultado = valorInserido * parseFloat(data.USDBRL.high);
+                    } else if (deMoeda === 'EUR' && paraMoeda === 'BRL') {
+                        resultado = valorInserido * parseFloat(data.EURBRL.high);
+                    }
+                    document.getElementById('result').value = resultado.toFixed(2);
+                }).fail(function() {
+                    limpaCampos();
+                    alert("Erro ao buscar cotação!");
+                });
+            } else { 
+                limpaCampos();
+                alert('Valor inserido inválido!');
+            }
+        }
+
+        document.getElementById('converterForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            pesquisarCotacao();
+        });
+    </script>
+</body>
+</html>
